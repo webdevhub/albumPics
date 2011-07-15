@@ -1,0 +1,120 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+	<title>Get Facebook Album Pictures</title>
+	<!-- Include the Facebook Javascript API -->
+	<script src="http://connect.facebook.net/en_US/all.js"></script>
+	<!-- Include the normal stylesheet-->
+	<link href="style.css" rel="stylesheet" />
+	<script type="text/javascript">
+		var album = "";
+		var access_token = "";
+		function init() {
+			FB.init({appId : "175679282469826", status : true,cookie : true,xbfml : true});
+			var _album = getParameter('id');
+			if(_album!="") {
+				album = _album;
+				access_token = getAccessToken();
+
+				document.getElementById("album_desc").innerHTML = unescape(getParameter('name'));
+
+				//Album Header Photo link, https://graph.facebook.com/ALBUM_ID/picture?access_token = ACCESS_TOKEN
+				document.getElementById("album_cover").innerHTML += '<img src="https://graph.facebook.com/'+album+'/picture?access_token='+access_token+'" />';
+				getAlbumPhotos(album);
+
+			} else {
+				album = "No Album ID passed";
+				document.getElementById("album_cover").innerHTML = '<span class="error">'+album+'</span>';
+			}
+		}
+
+		//queries the cookie on browser, to get the access_token
+		function getAccessToken() {
+			splitArray = document.cookie.split(";");
+			access_token = "";
+			for(var v in splitArray) {
+				if(splitArray[v].substr(0,4)==" fbs") {
+					access_token = splitArray[v];
+					break;
+				}
+			}
+			var arr = access_token.split("&")[0].split("=");
+			return arr[arr.length-1];
+		}
+
+		//gets all the photos in the album
+		function getAlbumPhotos(albumid) {
+			//Queries /ALBUM_ID/photos
+			FB.api("/"+albumid+"/photos",function(response){
+				var photos = response["data"];
+				document.getElementById("photos_header").innerHTML = "Photos("+photos.length+")";
+				for(var v=0;v<photos.length;v++) {
+					var image_arr = photos[v]["images"];
+
+					var subImages_text1 = "Photo "+(v+1);
+					
+					//this is for the small picture that comes in the second column
+					var subImages_text2 = '<img src="'+image_arr[(image_arr.length-1)]["source"]+'" />';
+
+					//this is for the third column, which holds the links other size versions of a picture
+					var subImages_text3 = "";
+
+					//gets all the different sizes available for a given image
+					for(var j = 0 ;j<image_arr.length;j++) {
+						subImages_text3 += '<a target="_blank" href="'+image_arr[j]["source"]+'">Photo('+image_arr[j]["width"]+"X"+image_arr[j]["height"]+')</a><br/>';
+					}
+					addNewRow(subImages_text1,subImages_text2,subImages_text3);
+				}
+			});
+		}
+
+		function addNewRow(data1,data2,data3) {
+			//inserts a new row into the table
+			var table = document.getElementById("album_photos");
+			var row = table.insertRow(table.rows.length);
+			var cell = row.insertCell(0);
+			cell.innerHTML = data1;
+			cell = row.insertCell(1);
+			cell.innerHTML = data2;
+			cell = row.insertCell(2);
+			cell.innerHTML = data3;
+		}
+
+		//This function gets the value of album, passed in the request string
+		function getParameter(name)
+		{
+			name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+			//the regular expression that separates the album from the queryString
+			var regexS = "[\\?&]"+name+"=([^&#]*)";
+			var regex = new RegExp( regexS );
+			var results = regex.exec( window.location.href );
+			if( results == null )
+			  return "";
+			else
+			  return results[1];
+		}
+
+	//calls init function once all the resources are loaded
+	window.addEventListener("load",init,true);
+	</script>
+</head>
+<body>
+	<div id="fb-root"></div>
+	<div id="wrapper">
+		<div id="fb-root"></div>
+
+		<h1 id="album_desc">
+		</h1>
+
+		<h2 id="album_cover">
+		</h2>
+
+		<table id="album_photos">
+			<tr><td colspan="3" id="photos_header">Photos</td></tr>
+		</table>
+
+		<div id="footer">Go to linked <a href="#">article</a><br/><a href="http://www.webdevhub.net"><img src="http://www.webdevhub.net/logo.gif"></a></div>
+	</div>
+</body>
+
+</html>

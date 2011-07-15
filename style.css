@@ -1,0 +1,56 @@
+#wrapper {
+	text-align:center;
+	width:800px;
+	margin: 0 auto;
+}
+
+a, a img {
+  text-decoration: none;
+  border:none;
+}
+
+h1 {
+	font-size:2.5em;
+}
+
+h2 {
+	font-size:1.7em;
+	
+}
+
+.btn {
+	font-size:1.5em;
+	border: grey 2px solid;
+}
+
+table{
+	border-collapse:collapse;
+	margin: 0 auto;
+	text-align:center;
+}
+
+table th,td{
+	border:1px solid black;
+	padding:5px;
+}
+
+
+
+#status {
+	font-size:1.5em;
+	color:grey;
+}
+
+select, input {
+	margin:3px;
+}
+
+.error {
+	color:red;
+}
+
+#footer {
+	border-top: grey 2px solid;
+	padding:5px;
+	font-size:1.2em;
+}

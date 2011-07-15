@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<title>Get Facebook Album Pictures</title>
+<!-- Include the Facebook Javascript API -->
+<script src="http://connect.facebook.net/en_US/all.js"></script>
+<!-- Include the normal stylesheet-->
+<link href="style.css" rel="stylesheet" />
+
+<script type="text/javascript">
+	var loggedIn = false;
+
+	/*Logs the user into Facebook*/
+	function loginFacebook() {
+		//initializes the facebook API
+		FB.init({appId : "175679282469826", status : true,cookie : true,xbfml : true});
+
+		document.getElementById("status").innerHTML = "Waiting for Facebook permission";
+	
+		//opens the Facebook login window for user
+		FB.login(function(response) {
+			if (response.session) {	
+				document.getElementById("status").innerHTML = "Logged In. Now, you can load albums.";
+				loggedIn = true;
+				//disables the login button after the user has loggedIn
+				document.getElementById("loginBtn").disabled = "disabled";
+			} else {
+				document.getElementById("status").innerHTML = "You have not given required permissions";
+				loggedIn = false;
+			}
+		},{perms:'user_photos'});
+	}
+
+	//loads the all the album currently present in user's facebook profile
+	//Requests to '/me/albums'
+	function loadAlbums() {
+		  if(loggedIn) {
+			  document.getElementById("status").innerHTML = "Getting album information from your Facebook profile";
+			  var counter = 0;
+			  FB.api('/me/albums', function(response) {
+				document.getElementById("albumsList").innerHTML = '';
+				for(var c in response["data"]) {
+					addOption(response["data"][c].name,response["data"][c].id);
+					counter++;
+				}
+				document.getElementById("status").innerHTML = "There are "+ counter +" albums in your Facebook profile";
+			  });
+		} else {
+			document.getElementById("status").innerHTML = "You have not given permissions. Please give permissions to load albums";
+		}
+	}
+
+	//Adds a new album link into albumsList div
+	function addOption(opText,opVal) {
+		var v = document.getElementById("albumsList");
+		v.innerHTML += '<br/><a target="_blank" href="album.htm?id='+opVal+'&name='+opText+'">'+opText+'</a>';
+	}
+
+	function init() {
+		var v = document.getElementById("loginBtn");
+		v.onclick = loginFacebook;
+		v.disabled = "";
+
+		var v1 = document.getElementById("albumBtn");
+		v1.onclick = loadAlbums;
+		v1.disabled = "";
+	}
+
+	//calls init function once all the resources are loaded
+	window.addEventListener("load",init,true);
+</script>
+</head>
+<body>
+      <div id="fb-root"></div>
+      <div id="wrapper">
+		<input class="btn" type="button" id="loginBtn" value="Get Permissions from Facebook"/>
+
+		<input class="btn" type="button" value="Load Albums" id="albumBtn"/>
+		<!-- the following div will show the status messages during the workflow of application-->
+		<div id="status">Click on the Get Permissions Button</div>
+
+		<h3>Albums</h3>
+
+		<div id="albumsList">No albums currently loaded</div>
+
+		<div id="footer">Go to linked <a href="#">article</a><br/><a href="http://www.webdevhub.net"><img src="http://www.webdevhub.net/logo.gif"></a></div>
+      </div>
+</body>
+</html>
